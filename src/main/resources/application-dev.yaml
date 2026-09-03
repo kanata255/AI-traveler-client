@@ -11,3 +11,19 @@ spring:
     url: jdbc:mysql://localhost:3306/0902-demo?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
     password: root
+  data:
+    redis:
+      host: localhost # Redis 服务地址
+      port: 6379 # Redis 端口
+      password: "" # Redis 密码（空表示无密码）
+      database: 0 # 使用的 Redis 数据库索引（0-15）
+      timeout: 3000ms # 连接超时时间
+      lettuce:
+        pool:
+          max-active: 8 # 连接池最大连接数
+          max-idle: 8 # 连接池最大空闲连接数
+          min-idle: 0 # 连接池最小空闲连接数
+          max-wait: -1ms # 连接池最大阻塞等待时间（-1 表示不限）
+mybatis-plus:
+  mapper-locations:
+    - classpath*:/mapper/**/*.xml

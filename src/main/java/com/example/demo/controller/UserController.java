@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.common.Result;
 import com.example.demo.enticy.User;
 import com.example.demo.service.UserService;
 import jakarta.annotation.Resource;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,6 +50,21 @@ public class UserController {
     @GetMapping("/{id}")
     public Result<User> getById(@PathVariable Long id) {
         return Result.success(userService.getById(id));
+    }
+
+    /**
+     * 按条件查询用户列表
+     * name / age / email 均可选，非空才作为过滤条件
+     * */
+    @GetMapping("/query")
+    public Result<List<User>> query(@RequestParam(required = false) String name,
+                                    @RequestParam(required = false) Integer age,
+                                    @RequestParam(required = false) String email) {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.like(StringUtils.hasText(name), "name", name)
+               .eq(age != null, "age", age)
+               .like(StringUtils.hasText(email), "email", email);
+        return Result.success(userService.list(wrapper));
     }
 
     /**
