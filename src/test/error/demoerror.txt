@@ -1,0 +1,29 @@
+2026-09-03T09:25:24.575+08:00  INFO 13888 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-03T09:25:24.750+08:00  INFO 13888 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:testdb user=SA
+2026-09-03T09:25:24.752+08:00  INFO 13888 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-03T09:25:24.775+08:00  INFO 13888 --- [           main] b.m.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.web.context.support.GenericWebApplicationContext@11bd803
+2026-09-03T09:25:24.995+08:00  INFO 13888 --- [           main] com.example.demo.DemoApplicationTests    : Started DemoApplicationTests in 2.183 seconds (process running for 3.363)
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+----- selectAll method test ------
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@24d7657b] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@873636861 wrapping conn0: url=jdbc:h2:mem:testdb user=SA] will not be managed by Spring
+==>  Preparing: SELECT id,name,age,email FROM `user`
+==> Parameters: 
+<==    Columns: ID, NAME, AGE, EMAIL
+<==        Row: 1, Jack, 20, jack@baomidou.com
+<==        Row: 2, Jone, 21, jone@baomidou.com
+<==        Row: 3, Timmy, 22, timmy@baomidou.com
+<==        Row: 4, Alice, 23, alice@baomidou.com
+<==        Row: 5, Bob, 24, bob@baomidou.com
+<==      Total: 5
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@24d7657b]
+User(id=1, name=Jack, age=20, email=jack@baomidou.com)
+User(id=2, name=Jone, age=21, email=jone@baomidou.com)
+User(id=3, name=Timmy, age=22, email=timmy@baomidou.com)
+User(id=4, name=Alice, age=23, email=alice@baomidou.com)
+User(id=5, name=Bob, age=24, email=bob@baomidou.com)
+2026-09-03T09:25:27.657+08:00  INFO 13888 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-09-03T09:25:27.659+08:00  INFO 13888 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+
+进程已结束，退出代码为 0

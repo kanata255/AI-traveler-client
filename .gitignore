@@ -1,0 +1,25 @@
+# Maven
+target/
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Claude
+.claude/
+
+# OS
+.DS_Store
+
+# Compiled class files
+**/*.class
+
+# Maven wrapper jar
+.mvn/wrapper/maven-wrapper.jar
+
+# Local environment
+!.mvn/wrapper/maven-wrapper.properties

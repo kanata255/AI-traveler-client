@@ -1,0 +1,4 @@
+# 多环境配置，上线后需要切换active
+spring:
+  profiles:
+    active: dev
