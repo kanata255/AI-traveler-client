@@ -1,5 +1,6 @@
 package com.example.demo;
 
+import cn.dev33.satoken.SaManager;
 import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,9 @@ public class DemoApplication {
     static final Logger log = LoggerFactory.getLogger(DemoApplication.class);
 
     public static void main(String[] args) {
+
         SpringApplication.run(DemoApplication.class, args);
+        System.out.println("启动成功，Sa-Token配置如下："+ SaManager.getConfig());
     }
 
     /**

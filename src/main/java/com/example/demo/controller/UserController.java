@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.common.Result;
 import com.example.demo.enticy.User;
@@ -16,27 +17,18 @@ public class UserController {
     @Resource
     private UserService userService;
 
-    /**
-     * 新增用户
-     * */
     @PostMapping("/save")
-    public Result<List<User>> save(@RequestBody User user){
+    public Result<List<User>> save(@RequestBody User user) {
         userService.save(user);
         return Result.success();
     }
 
-    /**
-     * 删除用户
-     * */
     @DeleteMapping("/{id}")
     public Result<Void> delete(@PathVariable Long id) {
         userService.removeById(id);
         return Result.success();
     }
 
-    /**
-     * 修改用户
-     * */
     @PutMapping("/{id}")
     public Result<Void> update(@PathVariable Long id, @RequestBody User user) {
         user.setId(id);
@@ -45,17 +37,31 @@ public class UserController {
     }
 
     /**
-     * 查询单个用户
-     * */
+     * 登录接口（必须在 /{id} 之前声明，否则路径变量会优先匹配）
+     */
+    @RequestMapping(value = "/doLogin", method = {RequestMethod.POST, RequestMethod.GET})
+    public Result<String> doLogin(String username, String password) {
+        if ("zhang".equals(username) && "123456".equals(password)) {
+            StpUtil.login(10001);
+            return Result.success("登录成功");
+        }
+        StpUtil.logout();
+        return Result.error(401, "用户名或密码错误");
+    }
+
+    @GetMapping("/isLogin")
+    public Result<Boolean> isLogin() {
+        return Result.success(StpUtil.isLogin());
+    }
+
+    /**
+     * 查询单个用户（路径变量放在最后，避免与 doLogin/isLogin 冲突）
+     */
     @GetMapping("/{id}")
     public Result<User> getById(@PathVariable Long id) {
         return Result.success(userService.getById(id));
     }
 
-    /**
-     * 按条件查询用户列表
-     * name / age / email 均可选，非空才作为过滤条件
-     * */
     @GetMapping("/query")
     public Result<List<User>> query(@RequestParam(required = false) String name,
                                     @RequestParam(required = false) Integer age,
@@ -67,9 +73,6 @@ public class UserController {
         return Result.success(userService.list(wrapper));
     }
 
-    /**
-     * 查询用户列表
-     * */
     @GetMapping("/list")
     public Result<List<User>> list() {
         return Result.success(userService.list());

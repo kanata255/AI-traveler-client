@@ -1,2 +1,21 @@
+2026-09-04T11:03:33.190+08:00  INFO 47632 --- [           main] b.m.s.MybatisPlusApplicationContextAware : Register ApplicationContext instances org.springframework.boot.web.server.servlet.context.AnnotationConfigServletWebServerApplicationContext@69653e16
+2026-09-04T11:03:33.595+08:00  WARN 47632 --- [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-09-04T11:03:33.611+08:00  INFO 47632 --- [           main] .s.b.a.l.ConditionEvaluationReportLogger :
+
 Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-09-03T11:09:51.688+08:00 ERROR 41256 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+2026-09-04T11:03:33.621+08:00 ERROR 47632 --- [           main] o.s.b.d.LoggingFailureAnalysisReporter   :
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 9091 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 9091 or configure this application to listen on another port.
+
+
+进程已结束，退出代码为 1
