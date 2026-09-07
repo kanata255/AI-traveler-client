@@ -1,0 +1,1 @@
+### 存放Spring Boot的Java配置类（使用 @Configuration 注解），用于替代或补充 application.yml 配置文件，比如配置拦截器、跨域、MyBatis等。

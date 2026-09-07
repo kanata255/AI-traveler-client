@@ -1,5 +1,7 @@
 package com.example.demo.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.common.Result;
@@ -36,20 +38,20 @@ public class UserController {
         return Result.success();
     }
 
-    /**
-     * 登录接口（必须在 /{id} 之前声明，否则路径变量会优先匹配）
-     */
-    @RequestMapping(value = "/doLogin", method = {RequestMethod.POST, RequestMethod.GET})
-    public Result<String> doLogin(String username, String password) {
-        if ("zhang".equals(username) && "123456".equals(password)) {
+    @RequestMapping("doLogin")
+    public Result<SaTokenInfo> doLogin(String username, String password) {
+        if("zhang".equals(username) && "123456".equals(password)) {
+            // 第1步，先登录上
             StpUtil.login(10001);
-            return Result.success("登录成功");
+            // 第2步，获取 Token  相关参数
+            SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
+            // 第3步，返回给前端
+            return Result.success(tokenInfo);
         }
-        StpUtil.logout();
         return Result.error(401, "用户名或密码错误");
     }
 
-    @GetMapping("/isLogin")
+    @GetMapping("isLogin")
     public Result<Boolean> isLogin() {
         return Result.success(StpUtil.isLogin());
     }
@@ -74,6 +76,7 @@ public class UserController {
     }
 
     @GetMapping("/list")
+    @SaCheckPermission("user.list")
     public Result<List<User>> list() {
         return Result.success(userService.list());
     }

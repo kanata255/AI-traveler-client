@@ -1,3 +1,5 @@
+
+# Spring Boot的核心配置文件。在这里可以配置服务器端口、数据库连接、日志级别等所有应用参数。
 # 给所有的接口前缀添加一个api
 server:
   servlet:
@@ -24,20 +26,20 @@ spring:
           max-idle: 8 # 连接池最大空闲连接数
           min-idle: 0 # 连接池最小空闲连接数
           max-wait: -1ms # 连接池最大阻塞等待时间（-1 表示不限）
-  # sa-token配置
-  sa-token:
-    # token名称 (同时也是cookie名称)
-    token-name: Authorization
-    # token有效期，单位s 默认30天, -1代表永不过期
-    timeout: 2592000
-    # token临时有效期 (指定时间内无操作就视为token过期) 单位: 秒
-    activity-timeout: -1
-    # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
-    allow-concurrent-login: false
-    # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
-    is-share: false
-    # token风格
-    token-style: uuid
+# sa-token配置
+sa-token:
+  # token名称 (同时也是cookie名称)
+  token-name: Authorization
+  # token有效期，单位s 默认30天, -1代表永不过期
+  timeout: 2592000
+  # token临时有效期 (指定时间内无操作就视为token过期) 单位: 秒
+  active-timeout: -1
+  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
+  allow-concurrent-login: false
+  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
+  is-share: false
+  # token风格
+  token-style: uuid
 mybatis-plus:
   mapper-locations:
     - classpath*:/mapper/**/*.xml
