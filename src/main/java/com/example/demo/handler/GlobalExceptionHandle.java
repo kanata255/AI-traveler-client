@@ -2,6 +2,7 @@ package com.example.demo.handler;
 
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
+import com.example.demo.common.BizException;
 import com.example.demo.common.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
@@ -50,6 +51,12 @@ public class GlobalExceptionHandle {
     public Result<Void> handleIllegalArgument(IllegalArgumentException e) {
         log.warn("参数异常: {}", e.getMessage());
         return Result.error(400, e.getMessage());
+    }
+
+    @ExceptionHandler(BizException.class)
+    public Result<Void> handleBizException(BizException e) {
+        log.warn("业务异常: code={}, msg={}", e.getCode(), e.getMessage());
+        return Result.error(e.getCode(), e.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)

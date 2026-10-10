@@ -49,6 +49,13 @@ public class RedisUtils {
         return redisTemplate.hasKey(key);
     }
 
+    /**
+     * 给已存在的 key 设置过期时间
+     */
+    public Boolean expire(String key, long timeout, TimeUnit unit) {
+        return redisTemplate.expire(key, timeout, unit);
+    }
+
     // ---------- 计数器 ----------
 
     /**

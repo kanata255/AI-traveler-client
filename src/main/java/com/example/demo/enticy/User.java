@@ -18,6 +18,9 @@ public class User {
     private String name;
     private Integer age;
     private String email;
+    private String phone;
+    private String password;
+    private Integer status;
     // 映射数据库中的字段，什么时候进行填充
     @TableField(value = "create_time",fill = FieldFill.INSERT)
     // 返回时间格式化

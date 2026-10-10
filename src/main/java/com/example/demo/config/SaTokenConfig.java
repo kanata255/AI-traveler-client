@@ -1,6 +1,8 @@
 package com.example.demo.config;
 
 import cn.dev33.satoken.context.SaHolder;
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.filter.SaServletFilter;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.router.SaRouter;
@@ -28,18 +30,25 @@ public class SaTokenConfig implements WebMvcConfigurer {
                 .setAuth(obj -> {
                     System.out.println("---------- 进入Sa-Token全局认证 -----------");
 
-                    // 登录认证 -- 拦截所有路由，并排除/user/doLogin 用于开放登录
-                    SaRouter.match("/**", "/user/doLogin", () -> StpUtil.checkLogin());
-
-                    // 更多拦截处理方式，请参考“路由拦截式鉴权”章节 */
+                    // 登录认证 -- 拦截所有路由，放行登录/注册与 Swagger 文档
+                    SaRouter.match("/**")
+                            .notMatch("/user/login", "/user/register",
+                                    "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
+                            .check(r -> StpUtil.checkLogin());
                 })
 
                 // 异常处理函数：每次认证函数发生异常时执行此函数
                 .setError(e -> {
                     // 设置响应头
                     SaHolder.getResponse().setHeader("Content-Type", "application/json;charset=UTF-8");
+                    if (e instanceof NotLoginException) {
+                        return JSONUtil.toJsonStr(Result.error(401, "未登录或token已过期"));
+                    }
+                    if (e instanceof NotPermissionException) {
+                        return JSONUtil.toJsonStr(Result.error(403, "无权限操作"));
+                    }
                     // 使用封装的 JSON 工具类转换数据格式
-                    return JSONUtil.toJsonStr( Result.error(e.getMessage()) );
+                    return JSONUtil.toJsonStr(Result.error(e.getMessage()));
                 })
 
                 // 前置函数：在每次认证函数之前执行（BeforeAuth 不受 includeList 与 excludeList 的限制，所有请求都会进入）
