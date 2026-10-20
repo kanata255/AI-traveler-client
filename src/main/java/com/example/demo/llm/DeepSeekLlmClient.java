@@ -34,13 +34,37 @@ public class DeepSeekLlmClient implements LlmClient {
         log.info("LLM stream start, msgCount={}", messages.size());
 
         return chatModel.stream(prompt)
+                .doOnNext(r -> {
+                    if (r == null || r.getResult() == null || r.getResult().getOutput() == null) {
+                        log.info("LLM raw chunk: <null response>");
+                        return;
+                    }
+                    var out = r.getResult().getOutput();
+                    log.info("LLM raw chunk: text={}, metadata={}", out.getText(), out.getMetadata());
+                })
                 .filter(r -> r != null && r.getResults() != null && !r.getResults().isEmpty())
-                .map(r -> r.getResult().getOutput().getText())
-                .filter(Objects::nonNull)
+                .flatMap(r -> {
+                    String text = r.getResult().getOutput().getText();
+                    log.info("flatMap pass: text={}", text);
+                    return text == null ? Flux.empty() : Flux.just(text);
+                })
                 .filter(s -> !s.isEmpty())
-                .doOnComplete(() ->
-                        log.info("LLM stream done, cost={}ms", System.currentTimeMillis() - start))
-                .onErrorMap(e -> new LlmException("流式调用失败", e));
+                .doOnComplete(() -> log.info("LLM stream done, cost={}ms", System.currentTimeMillis() - start))
+                .onErrorMap(e -> {
+                    Throwable root = rootCause(e);
+                    log.error("LLM stream failed, msgCount={}, cause={}: {}",
+                            messages.size(), root.getClass().getSimpleName(), root.getMessage());
+                    return new LlmException("流式调用失败: " + root.getClass().getSimpleName()
+                            + " - " + root.getMessage(), e);
+                });
+    }
+
+    private static Throwable rootCause(Throwable e) {
+        Throwable t = e;
+        while (t.getCause() != null && t.getCause() != t) {
+            t = t.getCause();
+        }
+        return t;
     }
 
     @Override

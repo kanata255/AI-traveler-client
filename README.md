@@ -166,3 +166,110 @@ src/test/
 
 - `enticy` 包名是 `entity` 的拼写误写，后续可重命名以保持规范。
 - `Person.java`、`src/test/error/demoerror.txt` 为早期演示遗留文件，暂未被业务使用。
+
+## 后端接口设计
+1. 全局前缀与端口（application-dev.yaml）
+
+server:
+servlet:
+context-path: /api   # 所有接口自动带 /api 前缀
+port: 9091
+
+2. 路由规则
+
+实际 URL = context-path(/api) + Controller 的 @RequestMapping + 方法 mapping。当前已实现的接口：
+
+┌──────┬────────────────────┬──────────────────────────────┬───────────────┐
+│ 方法 │        路径        │             说明             │     鉴权      │                                                                                                                  
+├──────┼────────────────────┼──────────────────────────────┼───────────────┤
+│ POST │ /api/user/register │ 注册，成功自动登录返回 token │ 免登录        │
+├──────┼────────────────────┼──────────────────────────────┼───────────────┤
+│ POST │ /api/user/login    │ 登录，返回 token             │ 免登录        │
+├──────┼────────────────────┼──────────────────────────────┼───────────────┤
+│ POST │ /api/user/logout   │ 登出                         │ @SaCheckLogin │
+├──────┼────────────────────┼──────────────────────────────┼───────────────┤
+│ GET  │ /api/user/me       │ 当前用户信息                 │ @SaCheckLogin │
+├──────┼────────────────────┼──────────────────────────────┼───────────────┤
+│ POST │ /api/chat/stream   │ DeepSeek 流式对话（SSE）     │ 白名单放行    │
+└──────┴────────────────────┴──────────────────────────────┴───────────────┘
+
+- UserController 的 mapping 是 /user（UserController.java:19）
+- ChatController 的 mapping 是 /chat（ChatController.java:23）
+
+3. 统一返回结构 Result<T>
+
+{ "code": 200, "message": "success", "data": {} }
+
+- code：200 成功 / 401 未登录 / 403 无权限 / 500 服务异常（Result.java）
+- 前端 IResponse<T>（src/types/global.d.ts:1）就是照这个结构定义的
+
+4. 鉴权约定（重点，前端要配合）
+
+- 后端 token 从 Header 名 Authorization 读取（application-dev.yaml:40 的 token-name: Authorization）
+- 白名单 AuthWhitelist.java:8 放行：/user/login、/user/register、/chat/stream + swagger
+- CORS 允许 http://localhost:5173 和 http://localhost:3000（WebConfig.java:13）
+
+二、前端如何设置代理字段
+
+关键在 .env.dev（或对应环境的 env 文件）+ vite.config.ts + axios baseURL 三处配合。
+
+1. env 文件里的三个字段（.env.dev）
+
+VITE_API_BASE_URL = '/dev-api'                  # ① 接口前缀（代理匹配 key）
+VITE_SERVER_URL = 'http://localhost:9091/api'   # ② 后端真实地址（已含 /api）
+VITE_APP_PORT = 5173                            # ③ dev 端口
+
+2. vite.config.ts:52 的 proxy 配置
+
+proxy: {
+[env.VITE_API_BASE_URL]: {                    // 匹配以 /dev-api 开头的请求
+target: env.VITE_SERVER_URL,                // 转发到 http://localhost:9091/api
+changeOrigin: true,
+rewrite: (path) => path.replace(new RegExp('^' + env.VITE_API_BASE_URL), ''), // 去掉 /dev-api
+},
+}
+
+3. axios 的 baseURL（src/services/service.ts:11）
+
+baseURL: import.meta.env.VITE_API_BASE_URL,   // '/dev-api'
+VITE_SERVER_URL = 'http://localhost:9091/api'   # ② 后端真实地址（已含 /api）
+VITE_APP_PORT = 5173                            # ③ dev 端口
+
+2. vite.config.ts:52 的 proxy 配置
+
+proxy: {
+[env.VITE_API_BASE_URL]: {                    // 匹配以 /dev-api 开头的请求
+target: env.VITE_SERVER_URL,                // 转发到 http://localhost:9091/api
+changeOrigin: true,
+changeOrigin: true,
+rewrite: (path) => path.replace(new RegExp('^' + env.VITE_API_BASE_URL), ''), // 去掉 /dev-api
+},
+}
+
+
+3. axios 的 baseURL（src/services/service.ts:11）
+
+baseURL: import.meta.env.VITE_API_BASE_URL,   // '/dev-api'
+
+4. 完整请求链路
+
+前端代码: POST('/user/login')
+4. 完整请求链路
+
+前端代码: POST('/user/login')
+↓  axios baseURL 拼前缀
+浏览器请求: /dev-api/user/login
+↓  vite 代理匹配 /dev-api，rewrite 去掉它
+转发到后端: http://localhost:9091/api/user/login
+↓  命中 context-path(/api) + @RequestMapping(/user) + /login
+
+
+SSE 也是同样走代理：use-plan-stream.ts:158 用 `${VITE_API_BASE_URL}/v1/plan/tasks/${taskId}/stream`，浏览器请求 /dev-api/v1/plan/tasks/xxx/stream → 代理转 http://localhost:9091/api/v1/plan/tasks/xxx/stream。
+
+三、需要注意的几个坑（当前代码存在不一致）
+
+1. /v1 前缀对不上：前端 plan.ts 用的是 /v1/plan/tasks、/v1/trips，use-plan-stream.ts 用 /v1/plan/tasks/{id}/stream。但后端现在只有 /user、/chat，/v1/plan、/v1/trips 还没实现，请求会 404。需要后端补 /v1/...（或前端改成
+   /plan/...）对齐。CLAUDE.md 约定是 /api/v1/...，但现有 Controller 是 /user、/chat，没带 v1。
+2. token 存储 key vs header 名：localStorage key 是 satoken（utils/auth.ts:1），header 名是 Authorization，后端 token-name 也是 Authorization——能对上，只是命名易混。
+3. /chat/stream 双重配置：既在 AuthWhitelist 白名单里，ChatController 又标了 @SaCheckLogin。白名单在 SaServletFilter 里 notMatch 放行，所以实际是免登录的。若要强制登录，应从白名单移除。
+4. VITE_SERVER_URL 必须带 /api：因为 rewrite 只去 /dev-api，剩下的 /api 正好补 context-path。若后端去掉 context-path，则这里要改成 http://localhost:9091。

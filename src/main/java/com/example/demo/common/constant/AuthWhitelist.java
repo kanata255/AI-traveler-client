@@ -11,7 +11,7 @@ public final class AuthWhitelist {
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/v3/api-docs/**",
-            "/chat/stream"
+            "/v1/plan/tasks"
     };
 
     private AuthWhitelist() {
