@@ -9,6 +9,7 @@ import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.json.JSONUtil;
 import com.example.demo.common.Result;
+import com.example.demo.common.constant.AuthWhitelist;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -32,8 +33,7 @@ public class SaTokenConfig implements WebMvcConfigurer {
 
                     // 登录认证 -- 拦截所有路由，放行登录/注册与 Swagger 文档
                     SaRouter.match("/**")
-                            .notMatch("/user/login", "/user/register",
-                                    "/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
+                            .notMatch(AuthWhitelist.URLS)
                             .check(r -> StpUtil.checkLogin());
                 })
 

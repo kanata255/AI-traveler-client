@@ -23,3 +23,8 @@ target/
 
 # Local environment
 !.mvn/wrapper/maven-wrapper.properties
+
+# Environment variables (local secrets, never commit)
+.env
+.env.*
+!.env.example

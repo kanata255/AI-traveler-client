@@ -1,11 +1,13 @@
 package com.example.demo;
 
 import cn.dev33.satoken.SaManager;
+import com.example.demo.llm.LlmProperties;
 import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 // 访问路径匹配
 @RequestMapping("/index")
 @MapperScan("com.example.demo.mapper")
+@EnableConfigurationProperties(LlmProperties.class)
 public class DemoApplication {
 
     static final Logger log = LoggerFactory.getLogger(DemoApplication.class);
