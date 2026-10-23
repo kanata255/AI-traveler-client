@@ -21,6 +21,8 @@ public record CreatePlanTaskRequest(
         List<String> dietary,
         String mustVisit,
         String avoid,
-        String extraNote
+        String extraNote,
+        String previousPlan,
+        String modifyRequest
 ) {
 }
